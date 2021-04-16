@@ -1,0 +1,38 @@
+{
+  "name": "canvas_pe",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --config webpack.dev.js --open",
+    "build": "webpack --config webpack.prod.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shivetay/canvas_phisicsEngine.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shivetay/canvas_phisicsEngine/issues"
+  },
+  "homepage": "https://github.com/shivetay/canvas_phisicsEngine#readme",
+  "devDependencies": {
+    "css-loader": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^1.1.5",
+    "file-loader": "^6.2.0",
+    "html-loader": "^1.3.2",
+    "html-webpack-plugin": "^4.5.1",
+    "mini-css-extract-plugin": "^1.3.3",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^10.1.0",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.1",
+    "webpack-dev-server": "^3.11.1",
+    "webpack-merge": "^5.7.3"
+  },
+  "dependencies": {
+    "clean-webpack-plugin": "^3.0.0"
+  }
+}
