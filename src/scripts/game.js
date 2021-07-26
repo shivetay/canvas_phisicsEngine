@@ -1,4 +1,5 @@
-import Ball from './ball';
+import Ball from './ball.js';
+import Inputs from './input.js';
 
 class Game {
   constructor(gameWidth, gameHeight) {
@@ -12,8 +13,9 @@ class Game {
 
     thisGame.ball = new Ball(thisGame);
     thisGame.ball2 = new Ball(thisGame);
+    thisGame.inputKeys = new Inputs(thisGame);
 
-    thisGame.gameObjects = [thisGame.ball, thisGame.ball2];
+    thisGame.gameObjects = [thisGame.ball, thisGame.ball2, thisGame.inputKeys];
   }
 
   draw(context) {
