@@ -1,0 +1,11 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#game {
+  border: 1px solid royalblue;
+  background: chartreuse;
+}
