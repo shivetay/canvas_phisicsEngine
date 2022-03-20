@@ -5,6 +5,7 @@ const balls = [];
 let x = 100;
 let y = 100;
 let LEFT, UP, RIGHT, DOWN;
+let friction = 0.1;
 
 // draw ball //
 
@@ -14,6 +15,11 @@ class Ball {
     this.y = y;
     this.r = r;
     this.move = false;
+    this.vel_x = 0;
+    this.vel_y = 0;
+    this.acc_x = 0;
+    this.acc_y = 0;
+    this.acceleration = 1;
     balls.push(this);
   }
 
@@ -26,6 +32,20 @@ class Ball {
     context.fillStyle = "red";
     context.fill();
   }
+
+  display() {
+    context.beginPath();
+    context.moveTo(this.x, this.y);
+    context.lineTo(this.x + this.acc_x * 100, this.y + this.acc_y * 100);
+    this.strokeStyle = "blue";
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(this.x, this.y);
+    context.lineTo(this.x + this.vell_x * 50, this.y + this.vel_y * 50);
+    this.strokeStyle = "white";
+    context.stroke();
+  }
 }
 
 // end //
@@ -34,44 +54,56 @@ class Ball {
 
 const keyControl = (ball) => {
   addEventListener("keydown", (e) => {
-    console.log(e.keyCode);
-    switch (e.keyCode) {
-      case 37:
+    console.log(e.key);
+    switch (e.key) {
+      case "a":
         LEFT = true;
-      case 38:
+      case "w":
         UP = true;
-      case 39:
+      case "d":
         RIGHT = true;
-      case 40:
+      case "s":
         DOWN = true;
     }
   });
 
   addEventListener("keyup", (e) => {
-    switch (e.keyCode) {
-      case 37:
+    switch (e.key) {
+      case "a":
         LEFT = false;
-      case 38:
+      case "w":
         UP = false;
-      case 39:
+      case "d":
         RIGHT = false;
-      case 40:
+      case "s":
         DOWN = false;
     }
   });
 
   if (LEFT) {
-    ball.x--;
+    ball.acc_x = -ball.acceleration;
   }
   if (UP) {
-    ball.y--;
+    ball.acc_y = -ball.acceleration;
   }
   if (RIGHT) {
-    ball.x++;
+    ball.acc_x = ball.acceleration;
   }
   if (DOWN) {
-    ball.y++;
+    ball.acc_y = ball.acceleration;
   }
+  if (!UP && !DOWN) {
+    ball.acc_y = 0;
+  }
+  if (!RIGHT && !LEFT) {
+    ball.acc_x = 0;
+  }
+  ball.vel_x += ball.acc_x;
+  ball.vel_x += ball.acc_y;
+  ball.vel_x *= 1 - friction;
+  ball.vel_y *= 1 - friction;
+  ball.x += ball.vel_x;
+  ball.y += ball.vel_y;
 };
 
 // end //
@@ -85,11 +117,12 @@ const animationFrame = () => {
     if (b.move) {
       keyControl(b);
     }
+    b.display();
   });
   requestAnimationFrame(animationFrame);
 };
 
-const ball1 = new Ball(200, 200, 20);
+const ball1 = new Ball(x, y, 20);
 const ball2 = new Ball(400, 500, 30);
 ball1.move = true;
 // ball2.move = true;
