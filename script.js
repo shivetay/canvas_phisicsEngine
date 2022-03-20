@@ -7,6 +7,39 @@ let y = 100;
 let LEFT, UP, RIGHT, DOWN;
 let friction = 0.1;
 
+// Vectros //
+class Vector {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  add(v) {
+    //x and y sum of x and y of current vectors
+    return new Vector(this.x + v.x, this.y + v.y);
+  }
+
+  subtr(v) {
+    //x and y diff of x and y of current vectors
+    return new Vector(this.x - v.x, this.y - v.y);
+  }
+
+  mag() {
+    return Math.sqrt(this.x ** 2 + this.y ** 2);
+  }
+
+  multi(n) {
+    return new Vector(this.x * n, this.y * n);
+  }
+  drawVect(start_x, start_y, n, color) {
+    context.beginPath();
+    context.moveTo(start_x, start_y);
+    context.lineTo(start_x + this.x * n, start_y + this.y * n);
+    context.strokeStyle = color;
+    context.stroke();
+  }
+}
+
 // draw ball //
 
 class Ball {
@@ -15,10 +48,8 @@ class Ball {
     this.y = y;
     this.r = r;
     this.move = false;
-    this.vel_x = 0;
-    this.vel_y = 0;
-    this.acc_x = 0;
-    this.acc_y = 0;
+    this.vel = new Vector(0, 0);
+    this.acc = new Vector(0, 0);
     this.acceleration = 1;
     balls.push(this);
   }
@@ -33,18 +64,10 @@ class Ball {
     context.fill();
   }
 
+  // display velocity and acc line //
   display() {
-    context.beginPath();
-    context.moveTo(this.x, this.y);
-    context.lineTo(this.x + this.acc_x * 100, this.y + this.acc_y * 100);
-    this.strokeStyle = "blue";
-    context.stroke();
-
-    context.beginPath();
-    context.moveTo(this.x, this.y);
-    context.lineTo(this.x + this.vell_x * 50, this.y + this.vel_y * 50);
-    this.strokeStyle = "white";
-    context.stroke();
+    this.vel.drawVect(this.x, this.y, 10, "red");
+    this.acc.drawVect(this.x, this.y, 100, "blue");
   }
 }
 
@@ -58,12 +81,16 @@ const keyControl = (ball) => {
     switch (e.key) {
       case "a":
         LEFT = true;
+        break;
       case "w":
         UP = true;
+        break;
       case "d":
         RIGHT = true;
+        break;
       case "s":
         DOWN = true;
+        break;
     }
   });
 
@@ -71,39 +98,45 @@ const keyControl = (ball) => {
     switch (e.key) {
       case "a":
         LEFT = false;
+        break;
       case "w":
         UP = false;
+        break;
       case "d":
         RIGHT = false;
+        break;
       case "s":
         DOWN = false;
+        break;
     }
   });
 
   if (LEFT) {
-    ball.acc_x = -ball.acceleration;
+    ball.acc.x = -ball.acceleration;
   }
   if (UP) {
-    ball.acc_y = -ball.acceleration;
+    ball.acc.y = -ball.acceleration;
   }
   if (RIGHT) {
-    ball.acc_x = ball.acceleration;
+    ball.acc.x = ball.acceleration;
   }
   if (DOWN) {
-    ball.acc_y = ball.acceleration;
+    ball.acc.y = ball.acceleration;
   }
   if (!UP && !DOWN) {
-    ball.acc_y = 0;
+    ball.acc.y = 0;
   }
   if (!RIGHT && !LEFT) {
-    ball.acc_x = 0;
+    ball.acc.x = 0;
   }
-  ball.vel_x += ball.acc_x;
-  ball.vel_x += ball.acc_y;
-  ball.vel_x *= 1 - friction;
-  ball.vel_y *= 1 - friction;
-  ball.x += ball.vel_x;
-  ball.y += ball.vel_y;
+
+  //acceleration values added to the velocity components
+  ball.vel = ball.vel.add(ball.acc);
+  //velocity gets multiplied by a number between 0 and 1
+  ball.vel = ball.vel.multi(1 - friction);
+  //velocity values added to the current x, y position
+  ball.x += ball.vel.x;
+  ball.y += ball.vel.y;
 };
 
 // end //
@@ -126,5 +159,7 @@ const ball1 = new Ball(x, y, 20);
 const ball2 = new Ball(400, 500, 30);
 ball1.move = true;
 // ball2.move = true;
+
+// end //
 
 requestAnimationFrame(animationFrame);
