@@ -31,6 +31,22 @@ class Vector {
   multi(n) {
     return new Vector(this.x * n, this.y * n);
   }
+
+  unit() {
+    if (this.mag() === 0) {
+      return new Vector(0, 0);
+    }
+    return new Vector(this.x / this.mag(), this.y / this.mag());
+  }
+
+  normal() {
+    return new Vector(-this.y, this.x).unit();
+  }
+
+  static dot(v1, v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+  }
+
   drawVect(start_x, start_y, n, color) {
     context.beginPath();
     context.moveTo(start_x, start_y);
@@ -66,8 +82,14 @@ class Ball {
 
   // display velocity and acc line //
   display() {
-    this.vel.drawVect(this.x, this.y, 10, "red");
-    this.acc.drawVect(this.x, this.y, 100, "blue");
+    this.vel.drawVect(700, 500, 10, "red");
+    this.acc.unit().drawVect(700, 500, 50, "blue");
+    // this.acc.normal().drawVect(700, 500, 50, "orange");
+
+    context.beginPath();
+    context.arc(700, 500, 50, 0, 2 * Math.PI);
+    context.strokeStyle = "black";
+    context.stroke();
   }
 }
 
@@ -131,6 +153,7 @@ const keyControl = (ball) => {
   }
 
   //acceleration values added to the velocity components
+  ball.acc = ball.acc.unit(ball.acceleration);
   ball.vel = ball.vel.add(ball.acc);
   //velocity gets multiplied by a number between 0 and 1
   ball.vel = ball.vel.multi(1 - friction);
