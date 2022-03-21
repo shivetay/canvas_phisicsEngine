@@ -60,8 +60,7 @@ class Vector {
 
 class Ball {
   constructor(x, y, r) {
-    this.x = x;
-    this.y = y;
+    this.pos = new Vector(x, y);
     this.r = r;
     this.move = false;
     this.vel = new Vector(0, 0);
@@ -72,7 +71,7 @@ class Ball {
 
   drawBall() {
     context.beginPath();
-    context.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+    context.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
     context.strokeStyle = "blue";
     context.stroke();
 
@@ -99,7 +98,6 @@ class Ball {
 
 const keyControl = (ball) => {
   addEventListener("keydown", (e) => {
-    console.log(e.key);
     switch (e.key) {
       case "a":
         LEFT = true;
@@ -158,8 +156,34 @@ const keyControl = (ball) => {
   //velocity gets multiplied by a number between 0 and 1
   ball.vel = ball.vel.multi(1 - friction);
   //velocity values added to the current x, y position
-  ball.x += ball.vel.x;
-  ball.y += ball.vel.y;
+  ball.pos = ball.pos.add(ball.vel);
+};
+
+// end //
+
+// collision //
+
+const round = (number, precision) => {
+  let factor = 10 ** precision;
+  return Math.round(number * factor) / factor;
+};
+
+const coll_det_bb = (b1, b2) => {
+  if (b1.r + b2.r >= b2.pos.subtr(b1.pos).mag()) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+//penetration resolution
+//repositions the balls based on the penetration depth and the collision normal
+const pen_res_bb = (b1, b2) => {
+  let dist = b1.pos.subtr(b2.pos);
+  let pen_depth = b1.r + b2.r - dist.mag();
+  let pen_res = dist.unit().multi(pen_depth / 2);
+  b1.pos = b1.pos.add(pen_res);
+  b2.pos = b2.pos.add(pen_res.multi(-1));
 };
 
 // end //
@@ -168,18 +192,26 @@ const keyControl = (ball) => {
 
 const animationFrame = () => {
   context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-  balls.forEach((b) => {
+  balls.forEach((b, index) => {
     b.drawBall();
     if (b.move) {
       keyControl(b);
     }
+    for (let i = index + 1; i < balls.length; i++) {
+      if (coll_det_bb(balls[index], balls[i])) {
+        pen_res_bb(balls[index], balls[i]);
+      }
+    }
+
     b.display();
   });
+
   requestAnimationFrame(animationFrame);
 };
 
 const ball1 = new Ball(x, y, 20);
 const ball2 = new Ball(400, 500, 30);
+const ball3 = new Ball(500, 550, 50);
 ball1.move = true;
 // ball2.move = true;
 
