@@ -90,6 +90,16 @@ class Ball {
     context.strokeStyle = "black";
     context.stroke();
   }
+
+  reposition() {
+    //acceleration values added to the velocity components
+    this.acc = this.acc.unit().multi(this.acceleration);
+    this.vel = this.vel.add(this.acc);
+    //velocity gets multiplied by a number between 0 and 1
+    this.vel = this.vel.multi(1 - friction);
+    //velocity values added to the current x, y position
+    this.pos = this.pos.add(this.vel);
+  }
 }
 
 // end //
@@ -149,14 +159,6 @@ const keyControl = (ball) => {
   if (!RIGHT && !LEFT) {
     ball.acc.x = 0;
   }
-
-  //acceleration values added to the velocity components
-  ball.acc = ball.acc.unit(ball.acceleration);
-  ball.vel = ball.vel.add(ball.acc);
-  //velocity gets multiplied by a number between 0 and 1
-  ball.vel = ball.vel.multi(1 - friction);
-  //velocity values added to the current x, y position
-  ball.pos = ball.pos.add(ball.vel);
 };
 
 // end //
@@ -186,6 +188,29 @@ const pen_res_bb = (b1, b2) => {
   b2.pos = b2.pos.add(pen_res.multi(-1));
 };
 
+const coll_res_bb = (b1, b2) => {
+  //collision normal vector
+  let normal = b1.pos.subtr(b2.pos).unit();
+  //relative velocity vector
+  let relVel = b1.vel.subtr(b2.vel);
+  //separating velocity - relVel projected onto the collision normal vector
+  let sepVel = Vector.dot(relVel, normal);
+  //the projection value after the collision (multiplied by -1)
+  let new_sepVel = -sepVel;
+  //collision normal vector with the magnitude of the new_sepVel
+  let sepVelVec = normal.multi(new_sepVel);
+
+  //adding the separating velocity vector to the original vel. vector
+  b1.vel = b1.vel.add(sepVelVec);
+  //adding its opposite to the other balls original vel. vector
+  b2.vel = b2.vel.add(sepVelVec.multi(-1));
+};
+
+const momentumDisplay = () => {
+  let momentum = ball1.vel.add(ball2.vel).mag();
+  context.fillText("Momentum: " + round(momentum, 4), 670, 400);
+};
+
 // end //
 
 // bal rerender //
@@ -200,11 +225,14 @@ const animationFrame = () => {
     for (let i = index + 1; i < balls.length; i++) {
       if (coll_det_bb(balls[index], balls[i])) {
         pen_res_bb(balls[index], balls[i]);
+        coll_res_bb(balls[index], balls[i]);
       }
     }
 
     b.display();
+    b.reposition();
   });
+  momentumDisplay();
 
   requestAnimationFrame(animationFrame);
 };
